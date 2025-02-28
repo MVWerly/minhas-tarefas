@@ -2,38 +2,55 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import Task from '../../models/Task'
 import * as enums from '../../utils/enums/Task'
 
+type TaskState = {
+  itens: Task[]
+}
+
+const initialState: TaskState = {
+  itens: [
+    {
+      title: 'Estudar Javascript',
+      priority: enums.Priority.IMPORTANTE,
+      status: enums.Status.PENDENTE,
+      description: 'fazer algo',
+      id: 1
+    },
+    {
+      title: 'Estudar HTML',
+      priority: enums.Priority.NORMAL,
+      status: enums.Status.CONCLUIDA,
+      description: 'Foco',
+      id: 2
+    },
+    {
+      title: 'Estudar Java',
+      priority: enums.Priority.URGENTE,
+      status: enums.Status.PENDENTE,
+      description: 'Modulo 3',
+      id: 3
+    }
+  ]
+}
+
 const tasksSlice = createSlice({
   name: 'task',
-  initialState: [
-    new Task(
-      'Estudar Javascript',
-      enums.Priority.IMPORTANTE,
-      enums.Status.PENDENTE,
-      '',
-      1
-    ),
-    new Task(
-      'Estudar TypeScript',
-      enums.Priority.URGENTE,
-      enums.Status.CONCLUIDA,
-      'Rever aula do módulo 2',
-      2
-    ),
-    new Task(
-      'Ir a academia',
-      enums.Priority.NORMAL,
-      enums.Status.CONCLUIDA,
-      'Praticar com foco',
-      3
-    )
-  ],
+  initialState,
   reducers: {
     remove: (state, action: PayloadAction<number>) => {
-      state = state.filter((task) => task.id !== action.payload)
+      state.itens = [
+        ...state.itens.filter((task) => task.id !== action.payload)
+      ]
+    },
+    edit: (state, action: PayloadAction<Task>) => {
+      const indexTask = state.itens.findIndex((t) => t.id === action.payload.id)
+
+      if (indexTask >= 0) {
+        state.itens[indexTask] = action.payload
+      }
     }
   }
 })
 
-export const { remove } = tasksSlice.actions
+export const { remove, edit } = tasksSlice.actions
 
 export default tasksSlice.reducer
