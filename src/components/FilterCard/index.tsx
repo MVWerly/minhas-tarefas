@@ -1,8 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux'
+import { useCallback } from 'react'
+
 import { RootReducer } from '../../store'
 import { changeFilter } from '../../store/reducers/filter'
-import * as S from './styles'
 import * as enums from '../../utils/enums/Task'
+
+import * as S from './styles'
 
 export type Props = {
   subtitle: string
@@ -12,16 +15,17 @@ export type Props = {
 
 const FilterCard = ({ subtitle, criterion, value }: Props) => {
   const dispatch = useDispatch()
-  const { filter, task } = useSelector((state: RootReducer) => state)
+  const filter = useSelector((state: RootReducer) => state.filter)
+  const task = useSelector((state: RootReducer) => state.task)
 
-  const checkIsActive = () => {
+  const checkIsActive = useCallback(() => {
     const sameCriterion = filter.criterion === criterion
     const sameValue = filter.value === value
 
     return sameCriterion && sameValue
-  }
+  }, [filter, criterion, value])
 
-  const couteringTasks = () => {
+  const countingTasks = useCallback(() => {
     if (criterion === 'todas') return task.itens.length
 
     if (criterion === 'prioridade') {
@@ -31,22 +35,22 @@ const FilterCard = ({ subtitle, criterion, value }: Props) => {
     if (criterion === 'status') {
       return task.itens.filter((item) => item.status === value).length
     }
-  }
+  }, [criterion, task, value])
 
-  const filtering = () => {
+  const filtering = useCallback(() => {
     dispatch(
       changeFilter({
         criterion,
         value
       })
     )
-  }
+  }, [criterion, value, dispatch])
 
-  const counter = couteringTasks()
+  const counter = countingTasks()
   const active = checkIsActive()
 
   return (
-    <S.Card active={active} onClick={filtering}>
+    <S.Card $active={active} onClick={filtering}>
       <S.Counter>{counter}</S.Counter>
       <S.Label>{subtitle}</S.Label>
     </S.Card>

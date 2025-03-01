@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import * as S from './styles'
+import { Button, SaveButton } from '../../styles'
 
-import { remove, edit } from '../../store/reducers/tasks'
+import { remove, edit, changeStatus } from '../../store/reducers/tasks'
 import TaskClass from '../../models/Task'
+import * as enums from '../../utils/enums/Task'
 
 type Props = TaskClass
 
@@ -30,13 +32,33 @@ const Task = ({
     setDescription(originalDescription)
   }
 
+  function changeStatustask(event: ChangeEvent<HTMLInputElement>) {
+    dispatch(
+      changeStatus({
+        id,
+        finalized: event.target.checked
+      })
+    )
+  }
+
   return (
     <S.TaskCard>
-      <S.TaskTitle>{title}</S.TaskTitle>
-      <S.Tag parameter="prioridade" priority={priority}>
+      <label htmlFor={title}>
+        <input
+          type="checkbox"
+          id={title}
+          checked={status === enums.Status.CONCLUIDA}
+          onChange={changeStatustask}
+        />
+        <S.TaskTitle>
+          {isEditing && <em>Editando: </em>}
+          {title}
+        </S.TaskTitle>
+      </label>
+      <S.Tag $parameter="prioridade" $priority={priority}>
         {priority}
       </S.Tag>
-      <S.Tag parameter="status" status={status}>
+      <S.Tag $parameter="status" $status={status}>
         {status}
       </S.Tag>
       <S.Description
@@ -47,7 +69,7 @@ const Task = ({
       <S.ActionsBar>
         {isEditing ? (
           <>
-            <S.SaveButton
+            <SaveButton
               onClick={() => {
                 dispatch(
                   edit({
@@ -62,14 +84,14 @@ const Task = ({
               }}
             >
               Salvar
-            </S.SaveButton>
+            </SaveButton>
             <S.CancelRemoveButton onClick={cancelEdit}>
               Cancelar
             </S.CancelRemoveButton>
           </>
         ) : (
           <>
-            <S.Button onClick={() => setIsEditing(true)}>Editar</S.Button>
+            <Button onClick={() => setIsEditing(true)}>Editar</Button>
             <S.CancelRemoveButton onClick={() => dispatch(remove(id))}>
               Remover
             </S.CancelRemoveButton>
